@@ -124,7 +124,7 @@ default TIME is now, ZONE is here."
 (defun openai-chat--write-message (input)
   "Write INPUT into `*Messages*' when `openai-chat-message-quiet' is nil."
   (unless openai-chat-message-quiet
-    (message "[openai-chat] %s %s" (openai-chat--datetime) input)))
+    (message "openai-chat: %s %s" (openai-chat--datetime) input)))
 
 (defun openai-chat--overwrite-buffer (input buffer)
   "Truncate BUFFER and write INPUT into BUFFER."
