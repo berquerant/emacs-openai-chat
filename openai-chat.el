@@ -280,7 +280,7 @@ Return `openai-chat--chat-response'."
     (error "Cannot send request by %S, client is not openai-chat--chat-client" client))
   (unless (openai-chat--chat-request-p req)
     (error "Cannot send request with %S, req is not openai-chat--chat-request" req))
-  (openai-chat--write-debug-log "start-time")
+  (openai-chat--write-debug-log "start request")
   (let ((req-time (openai-chat--timestamp)))
     (advice-add 'request :around 'openai-chat--advice-around-ignore-return-value) ; turn off noisy logs on *Messages*
     (request
