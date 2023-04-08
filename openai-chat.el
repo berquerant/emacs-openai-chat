@@ -66,7 +66,7 @@ If nil, not saved."
   "Default chat user role."
   :type 'string)
 
-(defcustom openai-chat-message-role-separator ">"
+(defcustom openai-chat-message-role-separator ">\n"
   "Separate role and content."
   :type 'string)
 
