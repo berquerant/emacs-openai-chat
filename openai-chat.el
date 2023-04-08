@@ -4,7 +4,7 @@
 ;; Maintainer: berquerant
 ;; Package-Requires: ((request "0.3.2") (s "1.13.0"))
 ;; Created: 8 Apr 2023
-;; Version: 0.1.0
+;; Version: 0.1.1
 ;; Keywords: openai
 ;; URL: https://github.com/berquerant/emacs-openai-chat
 
@@ -86,6 +86,10 @@ If nil, not saved."
   "HTTP timeout (second)."
   :type 'number)
 
+(defcustom openai-chat-message-quiet nil
+  "When non-nil, no output to *Messages*."
+  :type 'boolean)
+
 ;;
 ;; utilities
 ;;
@@ -116,6 +120,11 @@ default TIME is now, ZONE is here."
 ;;
 ;; output functions
 ;;
+
+(defun openai-chat--write-message (input)
+  "Write INPUT into `*Messages*' when `openai-chat-message-quiet' is nil."
+  (unless openai-chat-message-quiet
+    (message "[openai-chat] %s %s" (openai-chat--datetime) input)))
 
 (defun openai-chat--overwrite-buffer (input buffer)
   "Truncate BUFFER and write INPUT into BUFFER."
@@ -148,6 +157,11 @@ default TIME is now, ZONE is here."
 (defun openai-chat--append-to-debug-buffer (input)
   (openai-chat--append-buffer input
                               (get-buffer-create openai-chat-debug-buffer-name)))
+
+(defun openai-chat--write-debug-log (input)
+  (openai-chat--write-message input)
+  (openai-chat--append-to-debug-buffer input)
+  (openai-chat--append-to-debug-buffer "\n"))
 
 ;;
 ;; structures
@@ -266,6 +280,7 @@ Return `openai-chat--chat-response'."
     (error "Cannot send request by %S, client is not openai-chat--chat-client" client))
   (unless (openai-chat--chat-request-p req)
     (error "Cannot send request with %S, req is not openai-chat--chat-request" req))
+  (openai-chat--write-debug-log "start-time")
   (let ((req-time (openai-chat--timestamp)))
     (advice-add 'request :around 'openai-chat--advice-around-ignore-return-value) ; turn off noisy logs on *Messages*
     (request
@@ -283,10 +298,13 @@ Return `openai-chat--chat-response'."
                                                                   req-time
                                                                   (openai-chat--timestamp)
                                                                   message-separator
-                                                                  role-separator))))
+                                                                  role-separator)))
+      :error (cl-function (lambda (&rest args &key error-thrown &allow-other-keys)
+                            (openai-chat--chat-client-send-request-error-callback error-thrown args))))
     (advice-remove 'request 'openai-chat--advice-around-ignore-return-value))) ; restore request function
 
 (defun openai-chat--chat-client-send-request-callback (data req req-time res-time message-separator role-separator)
+  (openai-chat--write-debug-log "end request")
   (openai-chat--append-to-debug-buffer (openai-chat--jsonify data))
   (openai-chat--append-to-debug-buffer "\n")
   (let ((response (make-openai-chat--chat-response :request req
@@ -304,6 +322,9 @@ Return `openai-chat--chat-response'."
          (content (cdr (assoc 'content message))))
     (make-openai-chat--chat-message :role role
                                     :content content)))
+
+(defun openai-chat--chat-client-send-request-error-callback (error-thrown &rest args)
+  (openai-chat--write-debug-log (format "got error: %S\n%S" error-thrown args)))
 
 (cl-defstruct openai-chat--chat-response
   "Response body."
