@@ -4,7 +4,7 @@
 ;; Maintainer: berquerant
 ;; Package-Requires: ((request "0.3.2") (s "1.13.0"))
 ;; Created: 8 Apr 2023
-;; Version: 0.1.1
+;; Version: 0.1.2
 ;; Keywords: openai
 ;; URL: https://github.com/berquerant/emacs-openai-chat
 
@@ -426,7 +426,8 @@ Reply will be sent to `openai-chat-buffer-name' buffer.
 
 e.g.
 
-  user>Hello
+  user>
+  Hello
 
 is equal to
 
@@ -434,12 +435,14 @@ is equal to
     {\"role\": \"user\", \"content\": \"Hello\"}
   ]
 
-  user>Hello
+  user>
+  Hello
   ---
   assistant>
   Hello there, how may I assist you today?
   ---
-  user>I have a headache
+  user>
+  I have a headache
 
 is equal to
 
