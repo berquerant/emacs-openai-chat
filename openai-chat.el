@@ -274,7 +274,8 @@ default TIME is now, ZONE is here."
   nil)
 
 (defun openai-chat--chat-client-send-request (client req message-separator role-separator)
-  "Send API request REQ (`openai-chat--chat-request') by CLIENT (`openai-chat--chat-client').
+  "Send API request REQ (`openai-chat--chat-request')
+by CLIENT (`openai-chat--chat-client').
 Return `openai-chat--chat-response'."
   (unless (openai-chat--chat-client-p client)
     (error "Cannot send request by %S, client is not openai-chat--chat-client" client))
