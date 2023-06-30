@@ -4,7 +4,7 @@
 ;; Maintainer: berquerant
 ;; Package-Requires: ((request "0.3.2") (s "1.13.0"))
 ;; Created: 8 Apr 2023
-;; Version: 0.1.2
+;; Version: 0.1.3
 ;; Keywords: openai
 ;; URL: https://github.com/berquerant/emacs-openai-chat
 
@@ -25,6 +25,7 @@
 ;; Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 
+(require 'cl-lib)
 (require 'request) ; https://github.com/tkf/emacs-request
 (require 's)       ; https://github.com/magnars/s.el
 
