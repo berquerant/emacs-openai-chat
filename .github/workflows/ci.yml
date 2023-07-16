@@ -17,6 +17,7 @@ jobs:
       matrix:
         emacs-version:
           - "27.1"
+          - "28.2"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
