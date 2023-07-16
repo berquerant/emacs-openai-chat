@@ -1,6 +1,6 @@
 # emacs-openai-chat
 
-Chat completion with emacs.
+Chat completion with Emacs.
 
 # Usage
 
@@ -16,7 +16,7 @@ Hello!
 assistant>
 Hello there! How can I assist you today?
 ```
-in `*openai-chat*` buffer.
+in `*openai-chat-N*` buffer. (N = 1, 2, ...)
 Append to the buffer:
 ```
 user>

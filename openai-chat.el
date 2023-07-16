@@ -43,9 +43,11 @@
 If nil, not saved."
   :type 'file)
 
-(defcustom openai-chat-buffer-name "*openai-chat*"
-  "Buffer to save the chat thread history."
-  :type 'string)
+(defconst openai-chat-buffer-name-template "*openai-chat-%d*"
+  "Buffer to save the chat thread history.")
+
+(defconst openai-chat-buffer-name-regex "\\*openai-chat-[0-9]+\\*"
+  "Buffer name regex to save the chat thread history.")
 
 (defcustom openai-chat-history-buffer-name "*openai-chat-history*"
   "Buffer to save the chat history."
@@ -122,6 +124,35 @@ default TIME is now, ZONE is here."
 ;; output functions
 ;;
 
+(defun openai-chat--match-current-buffer-name ()
+  "Return buffer name if current buffer name matches
+`openai-chat-buffer-name-regex' or nil."
+  (let ((name (buffer-name)))
+    (when (string-match-p openai-chat-buffer-name-regex name)
+      name)))
+
+(defun openai-chat--find-minimum-unused-buffer-number ()
+  (let ((buffer-names (mapcar 'buffer-name (buffer-list)))
+        (n 1))
+    (while (member (format openai-chat-buffer-name-template n) buffer-names)
+      (setq n (+ n 1)))
+    n))
+
+(defun openai-chat--get-chat-buffer-name ()
+  (let ((name (openai-chat--match-current-buffer-name)))
+    (if name name
+      (let ((new-buffer-name (format openai-chat-buffer-name-template
+                                     (openai-chat--find-minimum-unused-buffer-number))))
+        (openai-chat--write-debug-log (format "open %s" new-buffer-name))
+        new-buffer-name))))
+
+(defun openai-chat--get-chat-buffer-create ()
+  "Create a new buffer for threads or open an existing buffer.
+Open the buffer if the current buffer name matches
+`openai-chat-buffer-name-regex'.
+Otherwise create a new buffer."
+  (get-buffer-create (openai-chat--get-chat-buffer-name)))
+
 (defun openai-chat--write-message (input)
   "Write INPUT into `*Messages*' when `openai-chat-message-quiet' is nil."
   (unless openai-chat-message-quiet
@@ -144,7 +175,7 @@ default TIME is now, ZONE is here."
 
 (defun openai-chat--overwrite-chat-buffer (input)
   (openai-chat--overwrite-buffer input
-                                 (get-buffer-create openai-chat-buffer-name)))
+                                 (openai-chat--get-chat-buffer-create)))
 
 (defun openai-chat--append-to-history-file (input)
   (when openai-chat-history-file
@@ -424,7 +455,7 @@ Return `openai-chat--chat-response'."
 
 Messages are separated by `openai-chat-message-separator',
 and role and content are separated by `openai-chat-message-role-separator'.
-Reply will be sent to `openai-chat-buffer-name' buffer.
+Reply will be sent to chat buffer.
 
 e.g.
 
@@ -462,7 +493,11 @@ is equal to
     {\"role\": \"user\", \"content\": \"Hello\"}
   ]
 
-when `openai-chat-default-user-role' is \"user\"."
+when `openai-chat-default-user-role' is \"user\".
+
+If this function is called from a buffer whose buffer name matches
+`openai-chat-buffer-name-regex', append to the buffer.
+Otherwise, create a new buffer and write to it."
   (interactive "r")
   (openai-chat--start (buffer-substring start end)))
 

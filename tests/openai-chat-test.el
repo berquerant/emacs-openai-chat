@@ -200,5 +200,22 @@ Hello there, how may I assist you today?")) (finish_reason . "stop"))]) (usage (
                                "|"
                                "x")
 
+(ert-deftest test-chat-buffer-open ()
+  (should (not (openai-chat--match-current-buffer-name)))
+  (should (eq 1 (openai-chat--find-minimum-unused-buffer-number)))
+  (should (equal "*openai-chat-1*" (openai-chat--get-chat-buffer-name)))
+  (with-current-buffer (openai-chat--get-chat-buffer-create)
+    (should (openai-chat--match-current-buffer-name))
+    (should (equal "*openai-chat-1*" (openai-chat--get-chat-buffer-name))))
+  (should (not (openai-chat--match-current-buffer-name)))
+  (should (eq 2 (openai-chat--find-minimum-unused-buffer-number)))
+  (should (equal "*openai-chat-2*" (openai-chat--get-chat-buffer-name)))
+  (with-current-buffer (openai-chat--get-chat-buffer-create)
+    (should (openai-chat--match-current-buffer-name))
+    (should (equal "*openai-chat-2*" (openai-chat--get-chat-buffer-name))))
+  (should (not (openai-chat--match-current-buffer-name)))
+  (should (eq 3 (openai-chat--find-minimum-unused-buffer-number)))
+  (should (equal "*openai-chat-3*" (openai-chat--get-chat-buffer-name))))
+
 (provide 'openai-chat-test)
 ;;; openai-chat-test.el ends here
