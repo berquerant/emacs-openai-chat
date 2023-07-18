@@ -4,7 +4,7 @@
 ;; Maintainer: berquerant
 ;; Package-Requires: ((request "0.3.2") (s "1.13.0"))
 ;; Created: 8 Apr 2023
-;; Version: 0.2.0
+;; Version: 0.3.0
 ;; Keywords: openai
 ;; URL: https://github.com/berquerant/emacs-openai-chat
 
@@ -93,6 +93,10 @@ If nil, not saved."
   "When non-nil, no output to *Messages*."
   :type 'boolean)
 
+(defcustom openai-chat-switch-buffer t
+  "When non-nil, switch to thread buffer."
+  :type 'boolean)
+
 ;;
 ;; utilities
 ;;
@@ -153,6 +157,15 @@ Open the buffer if the current buffer name matches
 Otherwise create a new buffer."
   (get-buffer-create (openai-chat--get-chat-buffer-name)))
 
+(defun openai-chat--switch-to-chat-buffer (chat-buffer-or-name)
+  "`switch-to-buffer-other-window' to CHAT-BUFFER-OR-NAME and move the cursor
+to the end of the buffer when `openai-chat-switch-buffer' is non-nil."
+  (when openai-chat-switch-buffer
+    (with-current-buffer chat-buffer-or-name
+      (goto-char (point-max)))
+    (unless (get-buffer-window chat-buffer-or-name)
+      (switch-to-buffer-other-window chat-buffer-or-name))))
+
 (defun openai-chat--write-message (input)
   "Write INPUT into `*Messages*' when `openai-chat-message-quiet' is nil."
   (unless openai-chat-message-quiet
@@ -174,8 +187,10 @@ Otherwise create a new buffer."
     (write-region input nil openai-chat-history-file t 'silent)))
 
 (defun openai-chat--overwrite-chat-buffer (input)
-  (openai-chat--overwrite-buffer input
-                                 (openai-chat--get-chat-buffer-create)))
+  (let ((buffer (openai-chat--get-chat-buffer-create)))
+      (openai-chat--overwrite-buffer input
+                                     buffer)
+      (openai-chat--switch-to-chat-buffer buffer)))
 
 (defun openai-chat--append-to-history-file (input)
   (when openai-chat-history-file
@@ -500,6 +515,12 @@ If this function is called from a buffer whose buffer name matches
 Otherwise, create a new buffer and write to it."
   (interactive "r")
   (openai-chat--start (buffer-substring start end)))
+
+;;;###autoload
+(defun openai-chat-start-buffer ()
+  "Send whole buffer to chat API."
+  (interactive)
+  (openai-chat--start (buffer-substring (point-min) (point-max))))
 
 (provide 'openai-chat)
 ;;; openai-chat.el ends here
