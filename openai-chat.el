@@ -522,5 +522,14 @@ Otherwise, create a new buffer and write to it."
   (interactive)
   (openai-chat--start (buffer-substring (point-min) (point-max))))
 
+;;;###autoload
+(defun openai-chat-start (txt)
+  "Send whole buffer or region to chat API."
+  (interactive
+   (list (cond
+          ((use-region-p) (buffer-substring (region-beginning) (region-end)))
+          (t (buffer-substring (point-min) (point-max))))))
+  (openai-chat--start txt))
+
 (provide 'openai-chat)
 ;;; openai-chat.el ends here
