@@ -22,7 +22,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup Emacs ${{ matrix.emacs-version }}
-        uses: purcell/setup-emacs@7a92187aa5b5a3b854cbdfa47499fbd3d1207163
+        uses: purcell/setup-emacs@b2aa076508504d3794cc561c18f3fd7f110d9c2d
         with:
           version: ${{ matrix.emacs-version }}
       - name: Test
