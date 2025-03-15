@@ -57,7 +57,7 @@ If nil, not saved."
   "Buffer for debug log."
   :type 'string)
 
-(defcustom openai-chat-model "gpt-3.5-turbo"
+(defcustom openai-chat-model "gpt-4o-mini"
   "ID of the model to use."
   :type 'string)
 
