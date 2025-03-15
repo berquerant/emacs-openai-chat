@@ -4,7 +4,7 @@
 ;; Maintainer: berquerant
 ;; Package-Requires: ((request "0.3.2") (s "1.13.0"))
 ;; Created: 8 Apr 2023
-;; Version: 0.4.0
+;; Version: 0.5.0
 ;; Keywords: openai
 ;; URL: https://github.com/berquerant/emacs-openai-chat
 
