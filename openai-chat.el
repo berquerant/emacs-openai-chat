@@ -61,10 +61,6 @@ If nil, not saved."
   "ID of the model to use."
   :type 'string)
 
-(defcustom openai-chat-temperature 1
-  "What sampling temperature to use."
-  :type 'number)
-
 (defcustom openai-chat-default-user-role "user"
   "Default chat user role."
   :type 'string)
@@ -258,12 +254,7 @@ to the end of the buffer when `openai-chat-switch-buffer' is non-nil."
    nil
    :documentation "ID of the model to use."
    :read-only t
-   :type string)
-  (temperature
-   nil
-   :documentation "What sampling temperature to use, between 0 and 2."
-   :read-only t
-   :type number))
+   :type string))
 
 (defun openai-chat--chat-messages-from-string (string message-separator role-separator default-role)
   (cl-loop for s in (openai-chat--split-string
@@ -279,11 +270,9 @@ to the end of the buffer when `openai-chat-switch-buffer' is non-nil."
      message-separator
      role-separator
      model
-     temperature
      default-role)
   (let ((messages (openai-chat--chat-messages-from-string string message-separator role-separator default-role)))
     (make-openai-chat--chat-request :model model
-                                    :temperature temperature
                                     :messages messages)))
 
 (defun openai-chat--chat-messages-into-alist (messages)
@@ -298,7 +287,6 @@ to the end of the buffer when `openai-chat-switch-buffer' is non-nil."
   (unless (openai-chat--chat-request-p req)
     (error "Cannot convert %S into alist, req is not openai-chat--chat-request" req))
   `(("model" . ,(openai-chat--chat-request-model req))
-    ("temperature" . ,(openai-chat--chat-request-temperature req))
     ("messages" . ,(openai-chat--chat-messages-into-alist (openai-chat--chat-request-messages req)) )))
 
 (cl-defstruct openai-chat--chat-client
@@ -451,8 +439,7 @@ Return `openai-chat--chat-response'."
                                                                                     openai-chat-message-separator
                                                                                     openai-chat-message-role-separator
                                                                                     openai-chat-default-user-role)
-                                  :model openai-chat-model
-                                  :temperature openai-chat-temperature))
+                                  :model openai-chat-model))
 
 (defun openai-chat--start (input)
   (openai-chat--chat-client-send-request (openai-chat-default-client)
